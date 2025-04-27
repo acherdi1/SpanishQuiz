@@ -95,6 +95,7 @@ else:
     var inputBox = window.parent.document.querySelector('input[type="text"]');
     if (inputBox) {
         inputBox.scrollIntoView({behavior: "smooth", block: "center"});
+        inputBox.scrollBy({top: -100, behavior: "smooth"});
     }
 </script>
 """
