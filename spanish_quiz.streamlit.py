@@ -12,13 +12,26 @@ def load_dictionary(filename):
     return words
 
 # Initialize session state
-if "words" not in st.session_state:
+if "initialized" not in st.session_state:
     st.session_state.words = load_dictionary("ichebnik.verbs.all.con_ej.txt")
-    random.shuffle(st.session_state.words)
     st.session_state.index = 0
     st.session_state.score = 0
     st.session_state.history = []
     st.session_state.current_answer = ""
+    st.session_state.initialized = True
+
+# Random order toggle
+random_order = st.toggle("Random Order?", value=True)
+
+# If random order is changed after app start
+if "randomized" not in st.session_state or st.session_state.randomized != random_order:
+    st.session_state.words = load_dictionary("ichebnik.verbs.all.con_ej.txt")
+    if random_order:
+        random.shuffle(st.session_state.words)
+    st.session_state.index = 0
+    st.session_state.score = 0
+    st.session_state.history = []
+    st.session_state.randomized = random_order
 
 # Function to process the answer
 def submit_answer():
