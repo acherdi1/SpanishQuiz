@@ -17,7 +17,30 @@ if "words" not in st.session_state:
     random.shuffle(st.session_state.words)
     st.session_state.index = 0
     st.session_state.score = 0
-    st.session_state.history = []  # For terminal-style display
+    st.session_state.history = []
+    st.session_state.current_answer = ""
+
+# Function to process the answer
+def submit_answer():
+    current = st.session_state.words[st.session_state.index]
+    correct_answer = current[0]
+
+    if st.session_state.current_answer.strip() == correct_answer:
+        feedback = f"<span style='color:green;'>✅ Correct! +1 point (Total: {st.session_state.score + 1})</span>"
+        st.session_state.score += 1
+        st.session_state.history.append(
+            f"<b>{current[1]}</b><br><pre>{st.session_state.current_extra}</pre>➔ {st.session_state.current_answer.strip()} {feedback}<br><br>"
+        )
+        st.session_state.index += 1
+    else:
+        feedback = f"<span style='color:red;'>❌ Wrong! (Correct answer: {correct_answer}) -1 point (Total: {st.session_state.score - 1})</span>"
+        st.session_state.score -= 1
+        st.session_state.history.append(
+            f"<b>{current[1]}</b><br><pre>{st.session_state.current_extra}</pre>➔ {st.session_state.current_answer.strip()} {feedback}<br><br>"
+        )
+
+    st.session_state.current_answer = ""  # clear the input
+    st.rerun()
 
 st.title("📚 Spanish Quiz - Terminal Mode")
 
@@ -28,37 +51,28 @@ if st.session_state.index >= len(st.session_state.words):
 else:
     current = st.session_state.words[st.session_state.index]
 
-    # Prepare the extra context
+    # Prepare extra text
     if len(current) > 2:
         extra = current[2].replace(current[0], "_______")
         extra_parts = extra.split("  -- ")
-        extra_text = "\n -- ".join(extra_parts[1:])
+        extra_text = "\n -- ".join(extra_parts[1:]) if len(extra_parts) > 1 else ""
     else:
         extra_text = ""
 
-    # Show the full history
+    st.session_state.current_extra = extra_text
+
+    # Show full history first (terminal style)
     for entry in st.session_state.history:
         st.markdown(entry, unsafe_allow_html=True)
 
-    # Show the current question
+    # Show current question
     st.markdown(f"**{current[1]}**")
     if extra_text:
         st.markdown(f"<pre>{extra_text}</pre>", unsafe_allow_html=True)
 
-    answer = st.text_input("Type your answer here:")
-
-    if st.button("Submit"):
-        if answer.strip() == current[0]:
-            feedback = f"<span style='color:green;'>✅ Correct! +1 point (Total: {st.session_state.score + 1})</span>"
-            st.session_state.score += 1
-            st.session_state.history.append(f"<b>{current[1]}</b> ➔ {answer.strip()} {feedback}")
-            st.session_state.index += 1
-        else:
-            feedback = f"<span style='color:red;'>❌ Wrong! (Correct answer: {current[0]}) -1 point (Total: {st.session_state.score - 1})</span>"
-            st.session_state.score -= 1
-            st.session_state.history.append(f"<b>{current[1]}</b> ➔ {answer.strip()} {feedback}")
-            # Optionally, you can append the wrong answers somewhere
-
-        st.experimental_rerun()  # Refresh to simulate terminal scroll
-
-
+    # Input field that triggers on Enter
+    st.text_input(
+        "Type your answer here:",
+        key="current_answer",
+        on_change=submit_answer,
+    )
