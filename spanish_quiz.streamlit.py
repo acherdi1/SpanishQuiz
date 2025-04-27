@@ -18,8 +18,8 @@ if "initialized" not in st.session_state:
     st.session_state.score = 0
     st.session_state.history = []
     st.session_state.answer_submitted = False
-    st.session_state.current_answer = ""
     st.session_state.initialized = True
+    st.session_state.input_text = ""
 
 # Random order toggle
 random_order = st.toggle("Random Order?", value=True)
@@ -67,14 +67,14 @@ else:
     # Input field that triggers on Enter
     st.text_input(
         "Type your answer here:",
-        key="current_answer",
+        key="input_text",
         on_change=submit_answer,
     )
 
     # After user submits
     if st.session_state.answer_submitted:
         correct_answer = current[0]
-        user_answer = st.session_state.current_answer.strip()
+        user_answer = st.session_state.input_text.strip()
 
         if user_answer == correct_answer:
             feedback = f"<span style='color:green;'>✅ Correct! +1 point (Total: {st.session_state.score + 1})</span>"
@@ -90,7 +90,7 @@ else:
                 f"<b>{current[1]}</b><br><pre>{extra_text}</pre>➔ {user_answer} {feedback}<br><br>"
             )
 
-        # Reset
+        # Clear input field
+        st.session_state.input_text = ""
         st.session_state.answer_submitted = False
-        st.session_state.current_answer = ""
-        st.experimental_rerun()
+        st.rerun()
