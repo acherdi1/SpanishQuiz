@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 
-# Load the dictionary
+# Load dictionary
 def load_dictionary(filename):
     words = []
     with open(filename, "r", encoding="utf-8") as f:
@@ -18,13 +18,13 @@ if "initialized" not in st.session_state:
     st.session_state.score = 0
     st.session_state.history = []
     st.session_state.answer_submitted = False
+    st.session_state.input_text_value = ""
     st.session_state.initialized = True
-    st.session_state.input_text = ""
 
 # Random order toggle
 random_order = st.toggle("Random Order?", value=True)
 
-# If random order toggled, reset everything
+# If random order toggled, reset
 if "randomized" not in st.session_state or st.session_state.randomized != random_order:
     st.session_state.words = load_dictionary("ichebnik.verbs.all.con_ej.txt")
     if random_order:
@@ -36,18 +36,18 @@ if "randomized" not in st.session_state or st.session_state.randomized != random
 
 st.title("📚 Spanish Quiz - Terminal Mode")
 
-# Function to process the answer
+# Function to submit answer
 def submit_answer():
     st.session_state.answer_submitted = True
 
-# Check if the quiz is finished
+# Check if finished
 if st.session_state.index >= len(st.session_state.words):
     st.success("🎉 You've finished the quiz!")
     st.write(f"Final Score: {st.session_state.score}")
 else:
     current = st.session_state.words[st.session_state.index]
 
-    # Prepare extra text
+    # Prepare extra
     if len(current) > 2:
         extra = current[2].replace(current[0], "_______")
         extra_parts = extra.split("  -- ")
@@ -55,26 +55,26 @@ else:
     else:
         extra_text = ""
 
-    # Show full history first (terminal style)
+    # Show history (terminal style)
     for entry in st.session_state.history:
         st.markdown(entry, unsafe_allow_html=True)
 
-    # Show current question
+    # Show question
     st.markdown(f"**{current[1]}**")
     if extra_text:
         st.markdown(f"<pre>{extra_text}</pre>", unsafe_allow_html=True)
 
-    # Input field that triggers on Enter
-    st.text_input(
+    # Input box
+    input_text = st.text_input(
         "Type your answer here:",
-        key="input_text",
+        value=st.session_state.input_text_value,
+        key="input_text_value",
         on_change=submit_answer,
     )
 
-    # After user submits
     if st.session_state.answer_submitted:
         correct_answer = current[0]
-        user_answer = st.session_state.input_text.strip()
+        user_answer = st.session_state.input_text_value.strip()
 
         if user_answer == correct_answer:
             feedback = f"<span style='color:green;'>✅ Correct! +1 point (Total: {st.session_state.score + 1})</span>"
@@ -90,7 +90,7 @@ else:
                 f"<b>{current[1]}</b><br><pre>{extra_text}</pre>➔ {user_answer} {feedback}<br><br>"
             )
 
-        # Clear input field
-        st.session_state.input_text = ""
+        # Reset input properly
+        st.session_state.input_text_value = ""
         st.session_state.answer_submitted = False
         st.rerun()
