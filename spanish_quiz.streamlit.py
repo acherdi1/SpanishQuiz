@@ -89,3 +89,13 @@ else:
         key="current_answer",
         on_change=submit_answer,
     )
+    
+    scroll_script = """
+<script>
+    var inputBox = window.parent.document.querySelector('input[type="text"]');
+    if (inputBox) {
+        inputBox.scrollIntoView({behavior: "smooth", block: "center"});
+    }
+</script>
+"""
+    st.markdown(scroll_script, unsafe_allow_html=True)
